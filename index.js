@@ -3,8 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
-import userRoutes from './routes/user.js';
-import recipeRoutes from './routes/recipe.js';
+import mongoose from 'mongoose';
+
+import userRoutes from './routes/userRoutes.js';
+import recipeRoutes from './routes/recipeRoute.js';
 
 // configure dotenv
 dotenv.config();
@@ -30,7 +32,7 @@ app.use(cookieParser());
 app.use(userRoutes);
 app.use(recipeRoutes);
 
-// error
+// // error
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).json({ message: 'Internal Server Error' });
@@ -41,7 +43,17 @@ app.use('*', (req, res) => {
     res.status(404).json({ message: 'Page is not found' });
 });
 
-// listen
-app.listen(PORT, () => {
-    console.log(`Server is up and running on port : ${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await mongoose.connect(process.env.CONNECTION_URL);
+        console.log('Interface connected');
+
+        // listen
+        app.listen(PORT, () => {
+            console.log(`Server is up and running on port : ${PORT}`);
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
+startServer();
